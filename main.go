@@ -59,10 +59,10 @@ func main() {
 		input := strings.Join(args[1:], " ")
 		appendToFile(dirname, "meeting", input, now)
 	case "cheat":
-		printFile("did.txt")
-		printFile("plan.txt")
-		printFile("block.txt")
-		printFile("meeting.txt")
+		printFile(dirname, "did", now)
+		printFile(dirname, "plan", now)
+		printFile(dirname, "block", now)
+		printFile(dirname, "meeting", now)
 	}
 }
 
@@ -86,5 +86,20 @@ func appendToFile(dirPath, dataType, input string, date time.Time) {
 }
 
 func printFile(dirPath, dataType string, date time.Time) {
+	// show data from today and yesterday
+	fullDirPath := filepath.Join(dirPath, date.Format("2006-01-02"), dataType+".txt")
+	var content []byte
+	contentToday, err := os.ReadFile(fullDirPath)
+	if err == nil {
+		content = contentToday
+	}
 
+	contentYesterday, err := os.ReadFile(filepath.Join(dirPath, date.AddDate(0, 0, -1).Format("2006-01-02"), dataType+".txt"))
+	if err == nil {
+		content = append(contentYesterday, content...)
+	}
+
+	if len(content) > 0 {
+		fmt.Printf("Entries for '%s':\n%s\n", strings.ToUpper(dataType), string(content))
+	}
 }
